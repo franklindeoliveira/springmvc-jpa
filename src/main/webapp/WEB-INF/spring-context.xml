@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+<beans 
+    xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:p="http://www.springframework.org/schema/p"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
-                           http://www.springframework.org/schema/beans/spring-beans.xsd
-                           http://www.springframework.org/schema/context 
-                           http://www.springframework.org/schema/context/spring-context.xsd
-                           http://www.springframework.org/schema/mvc
-                           http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context 
+                        http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/mvc 
+                        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                        http://www.springframework.org/schema/tx 
+     				    http://www.springframework.org/schema/tx/spring-tx.xsd">
 
 	<!-- Configuração do pacote base da aplicação -->
 	<context:component-scan base-package="br.com.springmvc" />
@@ -34,7 +39,7 @@
 	</bean>
 	
 	<!-- Configuração do datasource para conexão com o banco de dados mysql -->
-	<bean name="mysqlDataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+	 <bean name="mysqlDataSource" class="org.apache.commons.dbcp2.BasicDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
 		<property name="url" value="jdbc:mysql://127.0.0.1:3306/dbmysql"></property>
 		<property name="username" value="root"></property>
@@ -48,17 +53,55 @@
         <property name="username" value="postgres"/>
         <property name="password" value="postgres"/>
     </bean>
-	
-	<!-- Configuração para mensagens internacionalizadas.
-		 Para alternar entre as mensagens basta enviar uma requisição informando como parâmetro
-		 o 'locale', por exemplo, \?locale=pt_BR para português e \?locale=en_US para inglês -->
-	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
-		<property name="basename" value="/WEB-INF/mensagens/messages" />
+    
+	<!-- gerenciamento de jpa pelo spring -->
+	<bean id="entityManagerFactoryMysql"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="mysqlDataSource" />
+		<property name="persistenceUnitName" value="PUMysql" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
 	</bean>
-    <mvc:interceptors>
-        <!-- Changes the locale when a 'locale' request parameter is sent; e.g. /?locale=de -->
-        <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" />
-    </mvc:interceptors>
-	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver" />
+	
+	<!-- gerenciamento de jpa pelo spring -->
+	<bean id="entityManagerFactoryHsql"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="hsqlDataSource" />
+		<property name="persistenceUnitName" value="PUHsql" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+	</bean>
+	
+	<!-- gerenciamento de jpa pelo spring -->
+	<bean id="entityManagerFactoryPostgres"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="postgresDataSource" />
+		<property name="persistenceUnitName" value="PUPostgres" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+	</bean>
+	
+	<!-- gerenciamento da transação pelo spring -->
+	<bean id="transactionManagerMysql" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactoryMysql" />
+	</bean>
+	
+	<!-- gerenciamento da transação pelo spring -->
+	<bean id="transactionManagerPostgres" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactoryPostgres" />
+	</bean>
+	
+	<!-- gerenciamento da transação pelo spring -->
+	<bean id="transactionManagerHsql" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactoryHsql" />
+	</bean>
+	
+	<!-- Localiza e faz auto DI para os bean com @Transaction -->  
+	<tx:annotation-driven transaction-manager="transactionManagerMysql" />  
+	<tx:annotation-driven transaction-manager="transactionManagerPostgres" /> 
+	<tx:annotation-driven transaction-manager="transactionManagerHsql" />
 	
 </beans>
