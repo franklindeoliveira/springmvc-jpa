@@ -21,6 +21,8 @@
 	<!-- Habilita as annotations do Spring MVC -->
 	<mvc:annotation-driven />
 	
+	<!-- <tx:annotation-driven /> -->
+	
 	<!-- Definição da view a ser carregada no contexto raiz da aplicação -->
 	<mvc:view-controller path="/" view-name="home"/>
 	

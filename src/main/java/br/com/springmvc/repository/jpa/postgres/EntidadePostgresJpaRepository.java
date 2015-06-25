@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.springmvc.modelo.Entidade;
 import br.com.springmvc.repository.EntidadeRepository;
 
-@Transactional
+@Transactional("transactionManagerPostgres")
 @Repository
 public class EntidadePostgresJpaRepository implements EntidadeRepository {
 
@@ -20,8 +20,6 @@ public class EntidadePostgresJpaRepository implements EntidadeRepository {
 	public void create() {
 		System.out.println("CREATE: EntidadePostgresJpaRepository");
 		entityManager.persist(new Entidade("coluna"));
-//		System.out.println(entityManager.find(Entidade.class, 1).getAtributo());
-//		entityManager.getTransaction().commit();
 	}
 
 	@Override
